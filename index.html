@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <title>AOCG Employee Handbook - EPUB Reader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://futurepress.github.io/epubjs-reader/css/normalize.css">
+    <link rel="stylesheet" href="https://futurepress.github.io/epubjs-reader/css/main.css">
+    <link rel="stylesheet" href="https://futurepress.github.io/epubjs-reader/css/popup.css">
+
+    <!-- Libraries -->
+    <script src="https://futurepress.github.io/epubjs-reader/js/libs/jquery.min.js"></script>
+    <script src="https://futurepress.github.io/epubjs-reader/js/libs/zip.min.js"></script>
+
+    <!-- EPUB.js core + reader -->
+    <script src="https://futurepress.github.io/epubjs-reader/js/epub.js"></script>
+    <script src="https://futurepress.github.io/epubjs-reader/js/reader.js"></script>
+
+    <script>
+      "use strict";
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Load the AOCG employee handbook from the same GitHub Pages server
+        window.reader = ePubReader("AOCG Employee Handbook - HR.epub", {
+          restore: true
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="sidebar">
+      <div id="panels">
+        <a id="show-Toc" class="show_view icon-list-1 active" data-view="Toc">TOC</a>
+        <a id="show-Bookmarks" class="show_view icon-bookmark" data-view="Bookmarks">Bookmarks</a>
+      </div>
+      <div id="tocView" class="view"></div>
+      <div id="bookmarksView" class="view">
+        <ul id="bookmarks"></ul>
+      </div>
+    </div>
+
+    <div id="main">
+      <div id="titlebar">
+        <div id="opener">
+          <a id="slider" class="icon-menu">Menu</a>
+        </div>
+        <div id="metainfo">
+          <span id="book-title"></span>
+          <span id="title-seperator">&nbsp;&nbsp;–&nbsp;&nbsp;</span>
+          <span id="chapter-title"></span>
+        </div>
+        <div id="title-controls">
+          <a id="bookmark" class="icon-bookmark-empty">Bookmark</a>
+          <a id="setting" class="icon-cog">Settings</a>
+        </div>
+      </div>
+
+      <div id="divider"></div>
+      <div id="prev" class="arrow">‹</div>
+      <div id="viewer"></div>
+      <div id="next" class="arrow">›</div>
+
+      <div id="loader">
+        <img
