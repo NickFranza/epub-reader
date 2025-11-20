@@ -144,12 +144,9 @@
 
     .toc-item:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
 
-    .toc-index { font-weight: 700; color: rgba(255, 255, 255, 0.7); text-align: right; }
     .toc-label { display: inline-block; white-space: normal; }
 
-    .toc-search {
-      margin-bottom: 12px;
-    }
+    .toc-search { margin-bottom: 12px; }
 
     .toc-search input {
       width: 100%;
@@ -162,9 +159,7 @@
       outline: none;
     }
 
-    .toc-search input::placeholder {
-      color: rgba(255, 255, 255, 0.65);
-    }
+    .toc-search input::placeholder { color: rgba(255, 255, 255, 0.65); }
 
     .search-box input {
       width: 100%;
@@ -177,9 +172,7 @@
       outline: none;
     }
 
-    .search-box input::placeholder {
-      color: var(--muted);
-    }
+    .search-box input::placeholder { color: var(--muted); }
 
     #viewer {
       position: relative;
@@ -381,7 +374,6 @@
     tocToggle.onclick = () => {
       toc.classList.toggle("open");
     };
-    // Ensure closed on load
     toc.classList.remove("open");
 
     book.loaded.navigation.then((nav) => {
