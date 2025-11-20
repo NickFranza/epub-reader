@@ -27,38 +27,35 @@
       min-height: 100vh;
     }
 
-    /* Apple Books–style page container */
     #apple-page-container {
-      width: 90vw;           /* wider so the “card” page isn’t clipped */
+      width: 90vw;
       max-width: 1100px;
-      height: 75vh;
-      max-height: 825px;
-
+      height: 90vh;
+      max-height: 1200px;
       background: var(--aocg-page);
       border-radius: 18px;
       box-shadow: 0 12px 35px rgba(0,0,0,0.22);
-      position: absolute;
+      position: relative;
       overflow: hidden;
     }
 
-    /* Main epub.js viewport (leaves room at bottom for scrubber) */
     #viewer {
       position: absolute;
-      top: 40px;
+      top: 0;
       left: 0;
       right: 0;
-      bottom: 20px; /* reserve space for scrubber bar */
+      bottom: 56px;
       margin: 0;
       padding: 0;
     }
 
-    /* TOC button */
+    /* TOC Button */
     #toc-button {
       position: absolute;
       top: 12px;
       left: 12px;
       background: rgba(0,0,0,0.55);
-      color: #fff;
+      color: white;
       padding: 8px 14px;
       border-radius: 10px;
       font-size: 14px;
@@ -67,10 +64,28 @@
       z-index: 30;
     }
 
-    /* TOC panel */
+    /* Open New Window */
+    #open-new-tab {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 35;
+      backdrop-filter: blur(4px);
+    }
+
+    #open-new-tab:hover {
+      background: rgba(0,0,0,0.85);
+    }
+
     #toc-panel {
       position: absolute;
-      top: 22;
+      top: 0;
       left: 0;
       width: 260px;
       height: 100%;
@@ -93,11 +108,11 @@
       cursor: pointer;
       color: #333;
     }
+
     .toc-item:hover {
       color: var(--aocg-red);
     }
 
-    /* Page turn arrows */
     .nav-arrow {
       position: absolute;
       top: 50%;
@@ -107,20 +122,20 @@
       cursor: pointer;
       user-select: none;
       z-index: 20;
-      transition: color 0.15s ease, transform 0.1s ease;
     }
+
     .nav-arrow:hover {
       color: rgba(0,0,0,0.75);
-      transform: translateY(-50%) scale(1.05);
     }
+
     #arrow-left {
       left: 12px;
     }
+
     #arrow-right {
       right: 12px;
     }
 
-    /* Scrubber bar at bottom */
     #scrubber-bar {
       position: absolute;
       left: 0;
@@ -136,38 +151,7 @@
 
     #scrubber {
       width: 100%;
-      -webkit-appearance: none;
-      appearance: none;
       background: transparent;
-    }
-
-    #scrubber::-webkit-slider-runnable-track {
-      height: 4px;
-      background: #cfcfcf;
-      border-radius: 2px;
-    }
-    #scrubber::-moz-range-track {
-      height: 4px;
-      background: #cfcfcf;
-      border-radius: 2px;
-    }
-
-    #scrubber::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      height: 16px;
-      width: 16px;
-      border-radius: 50%;
-      background: var(--aocg-red);
-      margin-top: -6px;
-      cursor: pointer;
-    }
-    #scrubber::-moz-range-thumb {
-      height: 16px;
-      width: 16px;
-      border-radius: 50%;
-      background: var(--aocg-red);
-      cursor: pointer;
     }
 
     #page-label {
@@ -176,191 +160,97 @@
       color: #444;
     }
 
-    /* Mobile tweaks */
     @media (max-width: 800px) {
-      body {
-        align-items: flex-start;
-      }
       #apple-page-container {
         width: 100vw;
-        max-width: 100vw;
         height: 100vh;
-        max-height: 100vh;
         border-radius: 0;
       }
     }
   </style>
 
-  <!-- jszip + epub.js 0.3.x -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3/dist/epub.min.js"></script>
 </head>
 
 <body>
 
-  <div id="apple-page-container">
-    <!-- TOC UI -->
-    <div id="toc-button">☰ Contents</div>
-    <div id="toc-panel"></div>
+<div id="apple-page-container">
 
-    <!-- Page turn arrows -->
-    <div id="arrow-left" class="nav-arrow">‹</div>
-    <div id="arrow-right" class="nav-arrow">›</div>
+  <div id="toc-button">☰ Contents</div>
+  <div id="open-new-tab">↗ Open in new window</div>
+  <div id="toc-panel"></div>
 
-    <!-- Main epub area -->
-    <div id="viewer"></div>
+  <div id="arrow-left" class="nav-arrow">‹</div>
+  <div id="arrow-right" class="nav-arrow">›</div>
 
-    <!-- Scrubber -->
-    <div id="scrubber-bar">
-      <input type="range" id="scrubber" min="0" max="100" value="0">
-      <div id="page-label">Progress: 0%</div>
-    </div>
+  <div id="viewer"></div>
+
+  <div id="scrubber-bar">
+    <input type="range" id="scrubber" min="0" max="100" value="0">
+    <div id="page-label">Progress: 0%</div>
   </div>
 
-  <script>
-    // Make sure this file sits next to: AOCG Employee Handbook - HR.epub
-    var book = ePub("AOCG Employee Handbook - HR.epub");
-    var rendition = book.renderTo("viewer", {
-      width: "100%",
-      height: "100%",
-      spread: "none",
-      flow: "paginated"
+</div>
+
+<script>
+  var book = ePub("AOCG Employee Handbook - HR.epub");
+  var rendition = book.renderTo("viewer", {
+    width: "100%",
+    height: "100%",
+    spread: "none",
+    flow: "paginated"
+  });
+
+  rendition.display();
+
+  document.getElementById("arrow-left").onclick = () => rendition.prev();
+  document.getElementById("arrow-right").onclick = () => rendition.next();
+
+  document.getElementById("open-new-tab").onclick = function () {
+    window.open("https://nickfranza.github.io/epub-reader/", "_blank");
+  };
+
+  document.addEventListener("keyup", function (e) {
+    if (e.key === "ArrowLeft") rendition.prev();
+    if (e.key === "ArrowRight") rendition.next();
+  });
+
+  let tocButton = document.getElementById("toc-button");
+  let tocPanel = document.getElementById("toc-panel");
+
+  book.loaded.navigation.then(nav => {
+    tocPanel.innerHTML = nav.toc.map(item =>
+      `<div class="toc-item" data-href="${item.href}">${item.label}</div>`
+    ).join("");
+
+    document.querySelectorAll(".toc-item").forEach(item => {
+      item.onclick = () => {
+        tocPanel.classList.remove("open");
+        rendition.display(item.dataset.href);
+      };
+    });
+  });
+
+  tocButton.onclick = () => tocPanel.classList.toggle("open");
+
+  const scrubber = document.getElementById("scrubber");
+  const label = document.getElementById("page-label");
+
+  book.ready.then(() => book.locations.generate(1600)).then(() => {
+    rendition.on("relocated", location => {
+      const percent = Math.floor(book.locations.percentageFromCfi(location.start.cfi) * 100);
+      scrubber.value = percent;
+      label.innerText = `Progress: ${percent}%`;
     });
 
-    rendition.display();
+    scrubber.oninput = () => {
+      const cfi = book.locations.cfiFromPercentage(scrubber.value / 100);
+      rendition.display(cfi);
+    };
+  });
 
-    // ---------- Navigation: arrows, keyboard, click left/right ----------
+</script>
 
-    document.getElementById("arrow-left").addEventListener("click", function () {
-      rendition.prev();
-    });
-    document.getElementById("arrow-right").addEventListener("click", function () {
-      rendition.next();
-    });
-
-    function keyListener(e) {
-      var code = e.keyCode || e.which;
-      if (code === 37) rendition.prev();
-      if (code === 39) rendition.next();
-    }
-    document.addEventListener("keyup", keyListener, false);
-
-    var container = document.getElementById("apple-page-container");
-    container.addEventListener("click", function (e) {
-      // Ignore clicks on controls
-      var targetId = e.target.id;
-      if (targetId === "arrow-left" || targetId === "arrow-right" ||
-          targetId === "toc-button" || targetId === "scrubber") return;
-
-      var rect = container.getBoundingClientRect();
-      var x = e.clientX - rect.left;
-      if (x < rect.width / 2) {
-        rendition.prev();
-      } else {
-        rendition.next();
-      }
-    });
-
-    // ---------- TOC Drawer ----------
-
-    var tocButton = document.getElementById("toc-button");
-    var tocPanel  = document.getElementById("toc-panel");
-
-    book.loaded.navigation.then(function (nav) {
-      var toc = nav.toc || [];
-      tocPanel.innerHTML = toc.map(function (item) {
-        return '<div class="toc-item" data-href="' + item.href + '">' +
-               item.label +
-               '</div>';
-      }).join("");
-
-      Array.prototype.forEach.call(
-        tocPanel.querySelectorAll(".toc-item"),
-        function (el) {
-          el.addEventListener("click", function () {
-            var href = el.getAttribute("data-href");
-            tocPanel.classList.remove("open");
-            rendition.display(href);
-          });
-        }
-      );
-    }).catch(function (err) {
-      console.warn("No TOC available:", err);
-    });
-
-    tocButton.addEventListener("click", function () {
-      tocPanel.classList.toggle("open");
-    });
-
-    // ---------- Scrubber / Progress (0–100%) ----------
-
-    var scrubber = document.getElementById("scrubber");
-    var label    = document.getElementById("page-label");
-    var mouseDown = false;
-
-    // Generate/load locations once the book is ready
-    book.ready.then(function () {
-      var key = book.key() + "-locations";
-      var stored = localStorage.getItem(key);
-
-      if (stored) {
-        return book.locations.load(stored);
-      } else {
-        // Larger number => fewer locations
-        return book.locations.generate(1600);
-      }
-    }).then(function () {
-      scrubber.min = 0;
-      scrubber.max = 100;
-      scrubber.step = 1;
-      scrubber.value = 0;
-      label.textContent = "Progress: 0%";
-
-      function slideTo() {
-        var value = parseInt(scrubber.value, 10) || 0;
-        var cfi = book.locations.cfiFromPercentage(value / 100);
-        rendition.display(cfi);
-      }
-
-      scrubber.addEventListener("input", function () {
-        mouseDown = true;
-        slideTo();
-      }, false);
-
-      scrubber.addEventListener("change", function () {
-        mouseDown = false;
-      }, false);
-
-      // Update slider when user navigates
-      rendition.on("relocated", function (location) {
-        if (!location || !location.start || !location.start.cfi) return;
-
-        var percent = book.locations.percentageFromCfi(location.start.cfi) || 0;
-        var percentage = Math.floor(percent * 100);
-
-        if (!mouseDown) {
-          scrubber.value = percentage;
-        }
-
-        label.textContent = "Progress: " + percentage + "%";
-      });
-
-      // Try to persist locations
-      try {
-        localStorage.setItem(book.key() + "-locations", book.locations.save());
-      } catch (e) {
-        console.warn("Could not save locations", e);
-      }
-    }).catch(function (err) {
-      console.error("EPUB init error:", err);
-    });
-  </script>
 </body>
 </html>
-
-
-
-
-
-
-
