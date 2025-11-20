@@ -18,20 +18,25 @@
 
     * { box-sizing: border-box; font-family: "Segoe UI", "Trebuchet MS", sans-serif; }
 
+    html, body {
+      height: 100%;
+    }
+
     body {
       margin: 0;
       background: radial-gradient(circle at 20% 20%, #f2ede4, #e3e1dc 60%, #dcd9d2);
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
-      min-height: 100vh;
+      min-height: 100%;
       color: var(--ink);
     }
 
     .shell {
-      width: min(1200px, 94vw);
-      height: min(90vh, 1100px);
-      min-height: 820px;
+      width: 100%;
+      max-width: 1200px;
+      height: 100%;
+      max-height: 100%;
       background: var(--paper);
       border-radius: 0;
       box-shadow: var(--shadow);
@@ -182,7 +187,7 @@
       justify-content: center;
       padding: 10px;
       width: 100%;
-      max-width: min(900px, calc((100vh - 64px - 90px - 24px) * var(--page-ratio)), 92vw);
+      max-width: min(900px, 92vw);
       margin: 0 auto;
       overflow: visible;
     }
