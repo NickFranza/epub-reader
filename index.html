@@ -67,19 +67,18 @@
 
     /* Apple Books style container */
     #apple-page-container {
-      position: relative;
-      width: min(900px, 90vw);
-      aspect-ratio: 3 / 4; /* 3:4 page ratio */
-      max-height: 90vh;
-      background: #fdfbf7;
+      width: 90vw;          /* was 75vw – give it more horizontal room */
+      max-width: 1100px;    /* was 900px – allow a wider card */
+
+      height: 90vh;         /* keep the tall, comfortable height */
+      max-height: 1200px;
+
+      background: var(--aocg-page);
       border-radius: 18px;
-      box-shadow:
-        0 18px 35px rgba(0, 0, 0, 0.25),
-        0 0 0 1px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.22);
+      position: relative;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+}
 
     /* Top “notch” / bezel feel (subtle) */
     #top-bezel {
@@ -307,3 +306,4 @@
   </script>
 </body>
 </html>
+
