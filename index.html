@@ -1,76 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>AOCG Employee Handbook – EPUB Reader</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- JSZip (required before epub.js) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
-
-  <!-- EPUB.js -->
-  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+  <meta charset="utf-8">
+  <title>AOCG Employee Handbook – Reader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: "Trebuchet MS", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    :root {
+      --aocg-red: #B22433;
+      --aocg-page: #FAF9F3;
+      --aocg-bg: #E9E9E9;
     }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #f0f0f0;
-      color: #1a1a1a;
+    * {
+      box-sizing: border-box;
+      font-family: "Trebuchet MS", sans-serif;
     }
 
     body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Outer shell */
-    #app-shell {
-      width: 100%;
-      max-width: 1200px;
-      padding: 24px 12px;
-    }
-
-    /* Optional title bar above the “device” */
-    #app-header {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    #app-header h1 {
       margin: 0;
-      font-size: 22px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #333333;
-    }
-
-    #app-header p {
-      margin: 4px 0 0;
-      font-size: 13px;
-      color: #666666;
-    }
-
-    /* Page shell: centers the Apple-style book “device” */
-    #page-shell {
+      padding: 0;
+      background: var(--aocg-bg);
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 100vh;
     }
 
-    /* Apple Books style container */
+    /* Apple Books–style page container */
     #apple-page-container {
-      width: 90vw;          /* was 75vw – give it more horizontal room */
-      max-width: 1100px;    /* was 900px – allow a wider card */
-
-      height: 80vh;         /* keep the tall, comfortable height */
+      width: 90vw;           /* wider so the “card” page isn’t clipped */
+      max-width: 1100px;
+      height: 90vh;
       max-height: 1200px;
 
       background: var(--aocg-page);
@@ -78,33 +39,99 @@
       box-shadow: 0 12px 35px rgba(0,0,0,0.22);
       position: relative;
       overflow: hidden;
-}
-
-    /* Top “notch” / bezel feel (subtle) */
-    #top-bezel {
-      height: 10px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.06), transparent);
-      flex-shrink: 0;
     }
 
-    /* Where epub.js renders the book */
+    /* Main epub.js viewport (leaves room at bottom for scrubber) */
     #viewer {
-      flex: 1 1 auto;
-      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 56px; /* reserve space for scrubber bar */
+      margin: 0;
+      padding: 0;
+    }
+
+    /* TOC button */
+    #toc-button {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      z-index: 30;
+    }
+
+    /* TOC panel */
+    #toc-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 260px;
       height: 100%;
-      overflow: hidden;
+      background: rgba(255,255,255,0.97);
+      padding: 20px 16px;
+      overflow-y: auto;
+      z-index: 25;
+      transform: translateX(-270px);
+      transition: transform 0.25s ease;
+      box-shadow: 4px 0 15px rgba(0,0,0,0.15);
+    }
+
+    #toc-panel.open {
+      transform: translateX(0);
+    }
+
+    .toc-item {
+      margin-bottom: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #333;
+    }
+    .toc-item:hover {
+      color: var(--aocg-red);
+    }
+
+    /* Page turn arrows */
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 42px;
+      color: rgba(0,0,0,0.35);
+      cursor: pointer;
+      user-select: none;
+      z-index: 20;
+      transition: color 0.15s ease, transform 0.1s ease;
+    }
+    .nav-arrow:hover {
+      color: rgba(0,0,0,0.75);
+      transform: translateY(-50%) scale(1.05);
+    }
+    #arrow-left {
+      left: 12px;
+    }
+    #arrow-right {
+      right: 12px;
     }
 
     /* Scrubber bar at bottom */
     #scrubber-bar {
-      width: 100%;
-      flex-shrink: 0;
-      padding: 10px 20px 14px;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px 18px;
       background: rgba(0, 0, 0, 0.06);
       backdrop-filter: blur(3px);
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
 
     #scrubber {
@@ -114,197 +141,219 @@
       background: transparent;
     }
 
-    /* Track */
     #scrubber::-webkit-slider-runnable-track {
       height: 4px;
-      background: #cccccc;
+      background: #cfcfcf;
       border-radius: 2px;
     }
     #scrubber::-moz-range-track {
       height: 4px;
-      background: #cccccc;
+      background: #cfcfcf;
       border-radius: 2px;
     }
 
-    /* Thumb */
     #scrubber::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      height: 18px;
-      width: 18px;
+      height: 16px;
+      width: 16px;
       border-radius: 50%;
-      background: #B22433; /* AOCG red */
-      margin-top: -7px;
+      background: var(--aocg-red);
+      margin-top: -6px;
       cursor: pointer;
     }
     #scrubber::-moz-range-thumb {
-      height: 18px;
-      width: 18px;
+      height: 16px;
+      width: 16px;
       border-radius: 50%;
-      border: none;
-      background: #B22433;
+      background: var(--aocg-red);
       cursor: pointer;
     }
 
     #page-label {
       font-size: 13px;
       text-align: right;
-      color: #333333;
+      color: #444;
     }
 
-    /* Click-to-turn overlays (invisible) */
-    .click-zone {
-      position: absolute;
-      top: 10px;
-      bottom: 40px; /* leave scrubber area free */
-      width: 30%;
-      cursor: pointer;
-      z-index: 5;
-    }
-    #zone-left {
-      left: 0;
-    }
-    #zone-right {
-      right: 0;
-    }
-
-    @media (max-width: 768px) {
-      #app-shell {
-        padding: 12px 4px;
+    /* Mobile tweaks */
+    @media (max-width: 800px) {
+      body {
+        align-items: flex-start;
       }
-
-      #app-header h1 {
-        font-size: 18px;
-        letter-spacing: 0.14em;
-      }
-
       #apple-page-container {
-        border-radius: 12px;
-      }
-
-      #scrubber-bar {
-        padding: 8px 12px 10px;
-      }
-
-      #page-label {
-        font-size: 12px;
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
       }
     }
   </style>
+
+  <!-- jszip + epub.js 0.3.x -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3/dist/epub.min.js"></script>
 </head>
 
 <body>
-  <div id="app-shell">
-    <div id="app-header">
-      <h1>Employee HandbookLibrary</h1>
-    </div>
 
-    <div id="page-shell">
-      <div id="apple-page-container">
-        <div id="top-bezel"></div>
+  <div id="apple-page-container">
+    <!-- TOC UI -->
+    <div id="toc-button">☰ Contents</div>
+    <div id="toc-panel"></div>
 
-        <!-- Click zones for page turns -->
-        <div id="zone-left" class="click-zone"></div>
-        <div id="zone-right" class="click-zone"></div>
+    <!-- Page turn arrows -->
+    <div id="arrow-left" class="nav-arrow">‹</div>
+    <div id="arrow-right" class="nav-arrow">›</div>
 
-        <!-- EPUB.js render target -->
-        <div id="viewer"></div>
+    <!-- Main epub area -->
+    <div id="viewer"></div>
 
-        <!-- Apple-Books style scrubber -->
-        <div id="scrubber-bar">
-          <input type="range" id="scrubber" min="0" max="100" value="0" />
-          <div id="page-label">Progress: 0%</div>
-        </div>
-      </div>
+    <!-- Scrubber -->
+    <div id="scrubber-bar">
+      <input type="range" id="scrubber" min="0" max="100" value="0">
+      <div id="page-label">Progress: 0%</div>
     </div>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      // Path must match the file in your repo
-      var book = ePub("AOCG Employee Handbook - HR.epub", { openAs: "epub" });
-      var viewerElement = document.getElementById("viewer");
+    // Make sure this file sits next to: AOCG Employee Handbook - HR.epub
+    var book = ePub("AOCG Employee Handbook - HR.epub");
+    var rendition = book.renderTo("viewer", {
+      width: "100%",
+      height: "100%",
+      spread: "none",
+      flow: "paginated"
+    });
 
-      var rendition = book.renderTo("viewer", {
-        width: "100%",
-        height: "100%",
-        flow: "paginated",
-        spread: "none"
-      });
+    rendition.display();
 
-      rendition.display();
+    // ---------- Navigation: arrows, keyboard, click left/right ----------
 
-      // Click navigation: left/right zones
-      document.getElementById("zone-left").addEventListener("click", function (e) {
-        e.stopPropagation();
+    document.getElementById("arrow-left").addEventListener("click", function () {
+      rendition.prev();
+    });
+    document.getElementById("arrow-right").addEventListener("click", function () {
+      rendition.next();
+    });
+
+    function keyListener(e) {
+      var code = e.keyCode || e.which;
+      if (code === 37) rendition.prev();
+      if (code === 39) rendition.next();
+    }
+    document.addEventListener("keyup", keyListener, false);
+
+    var container = document.getElementById("apple-page-container");
+    container.addEventListener("click", function (e) {
+      // Ignore clicks on controls
+      var targetId = e.target.id;
+      if (targetId === "arrow-left" || targetId === "arrow-right" ||
+          targetId === "toc-button" || targetId === "scrubber") return;
+
+      var rect = container.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      if (x < rect.width / 2) {
         rendition.prev();
-      });
-
-      document.getElementById("zone-right").addEventListener("click", function (e) {
-        e.stopPropagation();
+      } else {
         rendition.next();
-      });
+      }
+    });
 
-      // Keyboard navigation
-      document.addEventListener("keyup", function (e) {
-        var code = e.key || e.keyCode;
-        if (code === "ArrowLeft" || code === 37) {
-          rendition.prev();
-        } else if (code === "ArrowRight" || code === 39) {
-          rendition.next();
+    // ---------- TOC Drawer ----------
+
+    var tocButton = document.getElementById("toc-button");
+    var tocPanel  = document.getElementById("toc-panel");
+
+    book.loaded.navigation.then(function (nav) {
+      var toc = nav.toc || [];
+      tocPanel.innerHTML = toc.map(function (item) {
+        return '<div class="toc-item" data-href="' + item.href + '">' +
+               item.label +
+               '</div>';
+      }).join("");
+
+      Array.prototype.forEach.call(
+        tocPanel.querySelectorAll(".toc-item"),
+        function (el) {
+          el.addEventListener("click", function () {
+            var href = el.getAttribute("data-href");
+            tocPanel.classList.remove("open");
+            rendition.display(href);
+          });
         }
+      );
+    }).catch(function (err) {
+      console.warn("No TOC available:", err);
+    });
+
+    tocButton.addEventListener("click", function () {
+      tocPanel.classList.toggle("open");
+    });
+
+    // ---------- Scrubber / Progress (0–100%) ----------
+
+    var scrubber = document.getElementById("scrubber");
+    var label    = document.getElementById("page-label");
+    var mouseDown = false;
+
+    // Generate/load locations once the book is ready
+    book.ready.then(function () {
+      var key = book.key() + "-locations";
+      var stored = localStorage.getItem(key);
+
+      if (stored) {
+        return book.locations.load(stored);
+      } else {
+        // Larger number => fewer locations
+        return book.locations.generate(1600);
+      }
+    }).then(function () {
+      scrubber.min = 0;
+      scrubber.max = 100;
+      scrubber.step = 1;
+      scrubber.value = 0;
+      label.textContent = "Progress: 0%";
+
+      function slideTo() {
+        var value = parseInt(scrubber.value, 10) || 0;
+        var cfi = book.locations.cfiFromPercentage(value / 100);
+        rendition.display(cfi);
+      }
+
+      scrubber.addEventListener("input", function () {
+        mouseDown = true;
+        slideTo();
+      }, false);
+
+      scrubber.addEventListener("change", function () {
+        mouseDown = false;
+      }, false);
+
+      // Update slider when user navigates
+      rendition.on("relocated", function (location) {
+        if (!location || !location.start || !location.start.cfi) return;
+
+        var percent = book.locations.percentageFromCfi(location.start.cfi) || 0;
+        var percentage = Math.floor(percent * 100);
+
+        if (!mouseDown) {
+          scrubber.value = percentage;
+        }
+
+        label.textContent = "Progress: " + percentage + "%";
       });
 
-      // Scrubber logic using locations (percentage) like the official example
-      var slider = document.getElementById("scrubber");
-      var label = document.getElementById("page-label");
-      var mouseDown = false;
-
-      // Generate locations for percentage-based navigation
-      book.ready
-        .then(function () {
-          // 1600 chars per "location" is a reasonable balance :contentReference[oaicite:2]{index=2}
-          return book.locations.generate(1600);
-        })
-        .then(function () {
-          slider.min = 0;
-          slider.max = 100;
-          slider.step = 1;
-          slider.value = 0;
-
-          // User drags scrubber → jump to that percentage
-          slider.addEventListener("input", function () {
-            mouseDown = true;
-            var value = parseInt(slider.value, 10) || 0;
-            var cfi = book.locations.cfiFromPercentage(value / 100);
-            rendition.display(cfi);
-          });
-
-          slider.addEventListener("change", function () {
-            mouseDown = false;
-          });
-
-          // When the book moves (via click, keyboard, etc.), update the scrubber
-          rendition.on("relocated", function (location) {
-            try {
-              var percent = book.locations.percentageFromCfi(location.start.cfi);
-              var percentage = Math.floor(percent * 100);
-              if (!mouseDown) {
-                slider.value = percentage;
-              }
-              label.textContent = "Progress: " + percentage + "%";
-            } catch (err) {
-              console.warn("Could not update scrubber:", err);
-            }
-          });
-        })
-        .catch(function (err) {
-          console.error("Error preparing locations:", err);
-        });
+      // Try to persist locations
+      try {
+        localStorage.setItem(book.key() + "-locations", book.locations.save());
+      } catch (e) {
+        console.warn("Could not save locations", e);
+      }
+    }).catch(function (err) {
+      console.error("EPUB init error:", err);
     });
   </script>
 </body>
 </html>
-
-
-
