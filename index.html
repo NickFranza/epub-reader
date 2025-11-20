@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AOCG Employee Handbook – EPUB Reader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- JSZip (required before epub.js) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+
+  <!-- EPUB.js -->
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Trebuchet MS", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #f0f0f0;
+      color: #1a1a1a;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Outer shell */
+    #app-shell {
+      width: 100%;
+      max-width: 1200px;
+      padding: 24px 12px;
+    }
+
+    /* Optional title bar above the “device” */
+    #app-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    #app-header h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #333333;
+    }
+
+    #app-header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #666666;
+    }
+
+    /* Page shell: centers the Apple-style book “device” */
+    #page-shell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Apple Books style container */
+    #apple-page-container {
+      position: relative;
+      width: min(900px, 90vw);
+      aspect-ratio: 3 / 4; /* 3:4 page ratio */
+      max-height: 90vh;
+      background: #fdfbf7;
+      border-radius: 18px;
+      box-shadow:
+        0 18px 35px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top “notch” / bezel feel (subtle) */
+    #top-bezel {
+      height: 10px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.06), transparent);
+      flex-shrink: 0;
+    }
+
+    /* Where epub.js renders the book */
+    #viewer {
+      flex: 1 1 auto;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Scrubber bar at bottom */
+    #scrubber-bar {
+      width: 100%;
+      flex-shrink: 0;
+      padding: 10px 20px 14px;
+      background: rgba(0, 0, 0, 0.06);
+      backdrop-filter: blur(3px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #scrubber {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+    }
+
+    /* Track */
+    #scrubber::-webkit-slider-runnable-track {
+      height: 4px;
+      background: #cccccc;
+      border-radius: 2px;
+    }
+    #scrubber::-moz-range-track {
+      height: 4px;
+      background: #cccccc;
+      border-radius: 2px;
+    }
+
+    /* Thumb */
+    #scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #B22433; /* AOCG red */
+      margin-top: -7px;
+      cursor: pointer;
+    }
+    #scrubber::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      border: none;
+      background: #B22433;
+      cursor: pointer;
+    }
+
+    #page-label {
+      font-size: 13px;
+      text-align: right;
+      color: #333333;
+    }
+
+    /* Click-to-turn overlays (invisible) */
+    .click-zone {
+      position: absolute;
+      top: 10px;
+      bottom: 40px; /* leave scrubber area free */
+      width: 30%;
+      cursor: pointer;
+      z-index: 5;
+    }
+    #zone-left {
+      left: 0;
+    }
+    #zone-right {
+      right: 0;
+    }
+
+    @media (max-width: 768px) {
+      #app-shell {
+        padding: 12px 4px;
+      }
+
+      #app-header h1 {
+        font-size: 18px;
+        letter-spacing: 0.14em;
+      }
+
+      #apple-page-container {
+        border-radius: 12px;
+      }
+
+      #scrubber-bar {
+        padding: 8px 12px 10px;
+      }
+
+      #page-label {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app-shell">
+    <div id="app-header">
+      <h1>AOCG Library</h1>
+      <p>Employee Handbook &amp; HR Resources</p>
+    </div>
+
+    <div id="page-shell">
+      <div id="apple-page-container">
+        <div id="top-bezel"></div>
+
+        <!-- Click zones for page turns -->
+        <div id="zone-left" class="click-zone"></div>
+        <div id="zone-right" class="click-zone"></div>
+
+        <!-- EPUB.js render target -->
+        <div id="viewer"></div>
+
+        <!-- Apple-Books style scrubber -->
+        <div id="scrubber-bar">
+          <input type="range" id="scrubber" min="0" max="100" value="0" />
+          <div id="page-label">Progress: 0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Path must match the file in your repo
+      var book = ePub("AOCG Employee Handbook - HR.epub", { openAs: "epub" });
+      var viewerElement = document.getElementById("viewer");
+
+      var rendition = book.renderTo("viewer", {
+        width: "100%",
+        height: "100%",
+        flow: "paginated",
+        spread: "none"
+      });
+
+      rendition.display();
+
+      // Click navigation: left/right zones
+      document.getElementById("zone-left").addEventListener("click", function (e) {
+        e.stopPropagation();
+        rendition.prev();
+      });
+
+      document.getElementById("zone-right").addEventListener("click", function (e) {
+        e.stopPropagation();
+        rendition.next();
+      });
+
+      // Keyboard navigation
+      document.addEventListener("keyup", function (e) {
+        var code = e.key || e.keyCode;
+        if (code === "ArrowLeft" || code === 37) {
+          rendition.prev();
+        } else if (code === "ArrowRight" || code === 39) {
+          rendition.next();
+        }
+      });
+
+      // Scrubber logic using locations (percentage) like the official example
+      var slider = document.getElementById("scrubber");
+      var label = document.getElementById("page-label");
+      var mouseDown = false;
+
+      // Generate locations for percentage-based navigation
+      book.ready
+        .then(function () {
+          // 1600 chars per "location" is a reasonable balance :contentReference[oaicite:2]{index=2}
+          return book.locations.generate(1600);
+        })
+        .then(function () {
+          slider.min = 0;
+          slider.max = 100;
+          slider.step = 1;
+          slider.value = 0;
+
+          // User drags scrubber → jump to that percentage
+          slider.addEventListener("input", function () {
+            mouseDown = true;
+            var value = parseInt(slider.value, 10) || 0;
+            var cfi = book.locations.cfiFromPercentage(value / 100);
+            rendition.display(cfi);
+          });
+
+          slider.addEventListener("change", function () {
+            mouseDown = false;
+          });
+
+          // When the book moves (via click, keyboard, etc.), update the scrubber
+          rendition.on("relocated", function (location) {
+            try {
+              var percent = book.locations.percentageFromCfi(location.start.cfi);
+              var percentage = Math.floor(percent * 100);
+              if (!mouseDown) {
+                slider.value = percentage;
+              }
+              label.textContent = "Progress: " + percentage + "%";
+            } catch (err) {
+              console.warn("Could not update scrubber:", err);
+            }
+          });
+        })
+        .catch(function (err) {
+          console.error("Error preparing locations:", err);
+        });
+    });
+  </script>
+</body>
+</html>
