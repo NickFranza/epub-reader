@@ -13,7 +13,7 @@
 
     * {
       box-sizing: border-box;
-      font-family: "Trebuchet MS";
+      font-family: "Trebuchet MS" !important;
     }
 
     body {
@@ -22,16 +22,21 @@
       overflow: hidden;
     }
 
+    /* Full-width header bar */
     .header-wrapper {
       width: 100%;
       height: 165px;
       position: relative;
+
+      /* Background image from your uploaded file */
       background-image: url("Library Header_2.png");
       background-size: cover;
       background-position: center;
+
       border-bottom: 3px solid var(--aocg-red);
     }
 
+    /* Dark fade overlay like AOCG corporate style */
     .header-overlay {
       position: absolute;
       inset: 0;
@@ -43,18 +48,23 @@
       );
     }
 
+    /* Main content container — WIDE */
     .header-content {
       position: relative;
       z-index: 1;
       height: 100%;
-      width: 95%;                     /* ← wider interior layout */
-      max-width: 1600px;              /* ← supports ultrawide screens */
-      margin: 0 auto;                 /* center full-width container */
+
+      /* Wider layout */
+      width: 95%;
+      max-width: 1600px;
+      margin: 0 auto;
+
       display: flex;
       align-items: center;
-      justify-content: flex-start;    /* ← content shifts left instead of centered */
-      gap: 40px;                      /* ← increased spacing for wider look */
-      padding-left: 40px;             /* ← pushes content left visually */
+      justify-content: flex-start;
+
+      gap: 40px;        /* spacing between logo + text */
+      padding-left: 40px;
     }
 
     .logo {
@@ -62,11 +72,11 @@
       flex-shrink: 0;
     }
 
-    .text-and-nav {
-      color: var(--aocg-light);
+    .text-col {
       display: flex;
       flex-direction: column;
       gap: 6px;
+      color: var(--aocg-light);
     }
 
     .title {
@@ -83,7 +93,7 @@
       color: #e7e7e7;
     }
 
-    /* MOBILE */
+    /* Mobile layout */
     @media (max-width: 720px) {
       .header-wrapper {
         height: 200px;
@@ -94,6 +104,36 @@
         justify-content: center;
         text-align: center;
         padding: 0 16px;
+        padding-left: 0;
         gap: 10px;
         width: 100%;
-        padding-left:
+      }
+
+      .logo {
+        height: 90px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header-wrapper">
+    <div class="header-overlay"></div>
+
+    <div class="header-content">
+
+      <!-- AOCG Logo -->
+      <img src="AOCG_Library.png" class="logo" alt="AOCG Library Logo">
+
+      <!-- Title + Subtitle -->
+      <div class="text-col">
+        <div class="title">Welcome to the AOCG Library</div>
+        <div class="subtitle">Employee Publications & Resources</div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
