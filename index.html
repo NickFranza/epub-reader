@@ -184,9 +184,10 @@
       width: 100%;
       max-width: min(900px, calc((100vh - 64px - 90px - 24px) * var(--page-ratio)), 92vw);
       margin: 0 auto;
+      overflow: visible;
     }
 
-    #viewer iframe { border: none; }
+    #viewer iframe { border: none; position: relative; z-index: 1; }
 
     /* Constrain EPUB viewport to keep aspect ratio reasonable on page turns */
     #viewer .epub-container {
@@ -215,7 +216,8 @@
       user-select: none;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
       transition: transform 0.12s ease, color 0.12s ease;
-      z-index: 8;
+      z-index: 20;
+      pointer-events: auto;
     }
 
     .nav-arrow:hover { color: var(--accent); transform: translateY(-50%) scale(1.03); }
