@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>AOCG Employee Handbook — Reader</title>
+  <title>AOCG Employee Handbook - Reader</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
@@ -149,9 +149,20 @@
     #viewer {
       position: relative;
       background: var(--paper);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
     }
 
     #viewer iframe { border: none; }
+
+    /* Constrain EPUB viewport to keep aspect ratio reasonable on page turns */
+    #viewer .epub-container {
+      width: min(880px, 100%);
+      max-height: 100%;
+      height: 100%;
+    }
 
     .nav-arrow {
       position: absolute;
@@ -233,7 +244,7 @@
     <div id="viewer">
       <div id="arrow-left" class="nav-arrow">&#8249;</div>
       <div id="arrow-right" class="nav-arrow">&#8250;</div>
-      <div class="status show" id="status">Loading book…</div>
+      <div class="status show" id="status">Loading book...</div>
     </div>
 
     <div class="open-row">
@@ -266,6 +277,13 @@
       height: "100%",
       flow: "paginated",
       spread: "none"
+    });
+
+    rendition.themes.default({
+      body: {
+        maxWidth: "760px",
+        margin: "0 auto"
+      }
     });
 
     const showStatus = (msg) => {
